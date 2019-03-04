@@ -1,0 +1,33 @@
+#define	TEST_VERSION_Z	"1.0.0\0"
+#define	TEST_VERSION	1,0,0,0
+
+#define	VS_VERSION_INFO	1
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION TEST_VERSION
+ PRODUCTVERSION TEST_VERSION
+ FILEFLAGSMASK 0x3fL
+ FILEFLAGS 0x0L
+ FILEOS 4
+ FILETYPE 2
+ FILESUBTYPE 0
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "041104b0"
+        BEGIN
+            VALUE "CompanyName", "GuruGuruSMF Project\0"
+            VALUE "FileDescription", "DirectMusicëÄçÏ\0"
+            VALUE "FileVersion", TEST_VERSION_Z
+            VALUE "InternalName", "dxmus.dll\0"
+            VALUE "LegalCopyright", "Copyright (C) 2010 âKî@\0"
+            VALUE "OriginalFilename", "dxmus.dll\0"
+            VALUE "ProductName", "GuruGuruSMF DirectMusic Interface\0"
+            VALUE "ProductVersion", TEST_VERSION_Z
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x411, 1200
+    END
+END

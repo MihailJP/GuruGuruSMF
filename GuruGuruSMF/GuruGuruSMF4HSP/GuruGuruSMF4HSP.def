@@ -1,0 +1,5 @@
+LIBRARY "GuruGuruSMF4HSP.hpi"
+EXPORTS
+  GuruGuruSMF4
+
+

@@ -1,0 +1,27 @@
+LIBRARY "GuruGuruSMF3"
+EXPORTS
+  GGSSetDevice
+  GGSLoadFile
+  GGSReadMemory
+  GGSAddList
+  GGSReadList
+  GGSDeleteList
+  GGSFlushList
+  GGSViewList
+  GGSSendReset
+  GGSPlay
+  GGSStop
+  GGSPause
+  GGSTempoDepth
+  GGSPitchDepth
+  GGSMasterVolume
+  GGSGetSMFDatas
+  GGSGetStatus
+  GGSAddDLS
+  GGSConfigDlg
+  GGSFree
+
+
+
+
+

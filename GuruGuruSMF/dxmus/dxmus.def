@@ -1,0 +1,18 @@
+LIBRARY "dxmus"
+EXPORTS
+  PerformanceOpen
+  PerformanceClose
+  PerformancePlay
+  PerformanceStop
+  PerformancePause
+  PerformanceRestart
+  PerformanceSetMasterVolume
+  PerformanceSetMasterTempo
+  PerformanceGetStatus
+  PortOpen
+  PortClose
+  PortGetReferenceTime
+  PortSendShortMessage
+  PortSendLongMessage
+  PortSetVoiceList
+  PortAddDls

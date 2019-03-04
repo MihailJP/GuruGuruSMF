@@ -1,0 +1,24 @@
+LIBRARY "GuruGuruSMF4"
+EXPORTS
+  GGS4OpenDevice
+  GGS4CloseDevice
+  GGS4AddDlsW
+  GGS4AddDlsA
+  GGS4Play
+  GGS4Stop
+  GGS4Pause
+  GGS4Restart
+  GGS4SetMasterTempo
+  GGS4SetMasterVolume
+  GGS4SetMasterPitch
+  GGS4GetPlayerStatus
+  GGS4AddListFromFileW
+  GGS4AddListFromFileA
+  GGS4AddListFromMemory
+  GGS4DeleteListItem
+  GGS4ClearList
+  GGS4EnumList
+  GGS4GetSmfInformation
+
+
+
