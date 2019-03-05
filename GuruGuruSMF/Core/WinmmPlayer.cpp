@@ -6,7 +6,7 @@
 namespace GuruGuruSmf { namespace Core { namespace WindowsMultimedia {
 
 	// タイマーコールバック
-	static void CALLBACK TimeCallback(UINT timerId, UINT msg, DWORD user, DWORD param1, DWORD param2)
+	static void CALLBACK TimeCallback(UINT timerId, UINT msg, DWORD_PTR user, DWORD_PTR param1, DWORD_PTR param2)
 	{
 		((Player*)user)->OnTimer();
 	}
