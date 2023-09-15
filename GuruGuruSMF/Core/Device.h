@@ -56,10 +56,10 @@ namespace WindowsMultimedia {
 		//
 		
 		// 長いMIDIメッセージを送信
-		void SendLongMessage(const byte* data, int length);
+		GGSERROR SendLongMessage(const byte* data, int length);
 		
 		// 短いMIDIメッセージを送信
-		void SendShortMessage(int status, int data1, int data2);
+		GGSERROR SendShortMessage(int status, int data1, int data2);
 	};
 
 
@@ -80,6 +80,9 @@ namespace DirectMusicPort {
 		Device(IDirectMusicTimer* timer);	// コンストラクタ
 		~Device();	// デストラクタ
 
+		// DirectMusic管理スレッド
+		void OnWorker();
+
 		// デバイスが開いているかどうか
 		bool GetIsOpen(){ return isOpen; }
 		
@@ -94,10 +97,10 @@ namespace DirectMusicPort {
 		//
 		
 		// 長いMIDIメッセージを送信
-		void SendLongMessage(const byte* data, int length);
+		GGSERROR SendLongMessage(const byte* data, int length);
 		
 		// 短いMIDIメッセージを送信
-		void SendShortMessage(int status, int data1, int data2);
+		GGSERROR SendShortMessage(int status, int data1, int data2);
 		
 	};
 

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include <dmksctrl.h>
+#include <process.h>
 #include "Port.h"
 
 
@@ -42,7 +43,62 @@ namespace GuruGuruSmf {	namespace Dxmus
 	}
 
 
+	// DirectMusic管理スレッド
+	unsigned int WINAPI threadPort(void* p_userdata)
+	{
+		CoInitializeEx(NULL, COINIT_MULTITHREADED);
+		//CoInitialize(NULL);
+		((Port*)p_userdata)->OnWorker();
+		CoUninitialize();
+		return 0;
+	}
 
+	// 全オブジェクトの操作覚悟で作りましたが
+	// OpenとCloseだけでも動いてるので様子見
+	void Port::OnWorker()
+	{
+		while(isWorkerOn)
+		{
+			isBusy = true;
+			while(!commands.empty())
+			{
+				PortCommand cmd = commands.front();
+				switch(cmd.type)
+				{
+				case CommandType_Open:
+					resultOpen = Open2(cmd.handle);
+					break;
+				case CommandType_Close:
+					Close2();
+					break;
+				default:
+					break;
+				}
+
+				EnterCriticalSection(&lockObject);
+				commands.pop();
+				LeaveCriticalSection(&lockObject);
+			}
+			isBusy = false;
+			Sleep(1);
+		}
+		DeleteCriticalSection(&lockObject);
+	}
+
+	// コマンドをキューに入れる
+	void Port::PostCommand(PortCommand cmd)
+	{
+		EnterCriticalSection(&lockObject);
+		commands.push(cmd);
+		LeaveCriticalSection(&lockObject);
+	}
+
+	// コマンドの実行が終わるまでウェイト
+	// 急ぐ処理は0 時間がかかるなら1が妥当
+	void Port::Wait(int sleep)
+	{
+		while(isBusy) Sleep(sleep);
+	}
 
 	// コンストラクタ
 	Port::Port()
@@ -57,6 +113,10 @@ namespace GuruGuruSmf {	namespace Dxmus
 		downloadedList = 0;
 		downloadedCount = 0;
 
+		isWorkerOn = true;
+		InitializeCriticalSection(&lockObject);
+		handle_thread = (HANDLE)_beginthreadex(NULL, 0, threadPort, this, 0, NULL);
+
 		isOpen = false;
 	}
 
@@ -64,15 +124,26 @@ namespace GuruGuruSmf {	namespace Dxmus
 	Port::~Port()
 	{
 		Close();
+
+		isWorkerOn = false;
+		WaitForSingleObject(handle_thread, INFINITE);
+		CloseHandle(handle_thread);
 	}
 
 	// 初期化
 	GGSERROR Port::Open(HWND handle)
 	{
-		Close();
+		PortCommand cmd;
+		cmd.type = CommandType_Open;
+		cmd.handle = handle;
+		PostCommand(cmd);
 
-		CoInitializeEx(NULL, COINIT_MULTITHREADED);
-		isOpen = true;
+		Wait(1);
+		return resultOpen;
+	}
+	GGSERROR Port::Open2(HWND handle)
+	{
+		Close2();
 
 		HRESULT hr;
 		hr = CoCreateInstance(CLSID_DirectMusic ,NULL ,
@@ -100,7 +171,8 @@ namespace GuruGuruSmf {	namespace Dxmus
 		if(FAILED(hr))	return GgsError::CannotOpenDevice;
 		hr = music->CreatePort(guidPort, &param, &port, NULL);
 		if(FAILED(hr))	return GgsError::CannotOpenDevice;
-		port->Activate(TRUE);
+		hr = port->Activate(TRUE);
+		if(FAILED(hr))	return GgsError::CannotOpenDevice;
 
 		// バッファ作成
 		DMUS_BUFFERDESC bufferDesc;
@@ -146,7 +218,7 @@ namespace GuruGuruSmf {	namespace Dxmus
 					(LPVOID*)&defaultDls);
 		if(FAILED(hr))	return GgsError::CannotOpenDevice;
 
-
+		isOpen = true;
 		return GgsError::NoError;
 	}
 
@@ -222,6 +294,17 @@ namespace GuruGuruSmf {	namespace Dxmus
 	// 後始末
 	void Port::Close()
 	{
+		PortCommand cmd;
+		cmd.type = CommandType_Close;
+		PostCommand(cmd);
+	}
+
+	void Port::Close2()
+	{
+		if(isOpen){
+			isOpen = false;
+		}
+
 		ResetVoiceList();
 
 		for(int i=0; i<(int)dlsList.size(); i++){
@@ -259,16 +342,13 @@ namespace GuruGuruSmf {	namespace Dxmus
 			music->Release();
 			music = 0;
 		}
-			
-		if(isOpen){
-			CoUninitialize();
-			isOpen = false;
-		}
 	}
 
 	// 遅延付き時間を取得
 	GGSERROR Port::GetReferenceTime(long long* time)
 	{
+		if(!isOpen)	return GgsError::NotReady;
+
 		HRESULT hr = clock->GetTime(time);
 		if(FAILED(hr)) return GgsError::Failed;
 		return GgsError::NoError;
@@ -283,6 +363,7 @@ namespace GuruGuruSmf {	namespace Dxmus
 		hr = buffer->PackStructured(time, 0, midiMessage);
 		if(FAILED(hr)) return GgsError::Failed;
 		hr = port->PlayBuffer(buffer);
+		if(FAILED(hr)) return GgsError::Failed;
 		buffer->Flush();
 			
 		return GgsError::NoError;
@@ -297,8 +378,8 @@ namespace GuruGuruSmf {	namespace Dxmus
 		hr = buffer->PackUnstructured(time, 0, length, midiMessage);
 		if(FAILED(hr)) return GgsError::Failed;
 		hr = port->PlayBuffer(buffer);
-		buffer->Flush();
 		if(FAILED(hr)) return GgsError::Failed;
+		buffer->Flush();
 
 		return GgsError::NoError;
 	}

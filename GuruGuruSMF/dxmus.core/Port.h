@@ -4,6 +4,7 @@
 #include <dmusicc.h>
 
 #include <vector>
+#include <queue>
 
 #include <Core/Constants.h>
 
@@ -25,6 +26,16 @@ namespace GuruGuruSmf {	namespace Dxmus
 		int GetInstrument(int voice, IDirectMusicInstrument8** instrument);
 	};
 
+	enum CommandType
+	{
+		CommandType_Open, CommandType_Close
+	};
+
+	struct PortCommand
+	{
+		CommandType type;
+		HWND handle;
+	};
 
 
 	// DirectMusicPortを扱うクラス
@@ -44,6 +55,19 @@ namespace GuruGuruSmf {	namespace Dxmus
 		int downloadedCount;
 
 		void ResetVoiceList();
+		
+		// スレッド関連
+		HANDLE handle_thread;
+		volatile bool isWorkerOn;
+		volatile bool isBusy;
+		CRITICAL_SECTION lockObject;
+		std::queue<PortCommand> commands;
+		GGSERROR resultOpen;	// 返り値(Open専用)
+
+		void PostCommand(PortCommand cmd);
+		GGSERROR Open2(HWND handle);
+		void Close2();
+		void Wait(int sleep);
 
 	public:
 		Port();
@@ -57,6 +81,7 @@ namespace GuruGuruSmf {	namespace Dxmus
 		GGSERROR AddDls(wchar_t* fileName);
 		int GetInstrument(int voice, IDirectMusicInstrument8** instrument);
 
+		void OnWorker();
 	};
 
 

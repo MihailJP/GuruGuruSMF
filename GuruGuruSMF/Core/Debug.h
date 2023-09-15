@@ -31,11 +31,13 @@ void GgsLoggingInitialize();
 void GgsLoggingPuts(const char* str);
 void GgsLoggingShortMsg(__int64 time, int status, int data1, int data2);
 void GgsLoggingLongMsg(__int64 time, int length);
+void GgsLoggingMessage(__int64 time, const char* str);
 __int64 GgsLoggingGetTime();
 
 #define GGS_LOGGING_INITIALIZE() GgsLoggingInitialize()
 #define GGS_LOGGING_SHORTMSG(t, s, a, b) GgsLoggingShortMsg(t, s, a, b)
 #define GGS_LOGGING_LONGMSG(t, l) GgsLoggingLongMsg(t, l)
+#define GGS_LOGGING_MSG(t, m) GgsLoggingMessage(t, m)
 #define GGS_LOGGING_GETTIME() GgsLoggingGetTime()
 
 #else

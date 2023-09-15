@@ -163,7 +163,7 @@ namespace DirectMusicPort {
 		int GetMusicTempo(){ return (int)(60000000 / tempo + 0.001); }
 		
 		// DirectMusic‚©‚çŠî€ŠÔ‚ğ“Ç‚ñ‚Å‚­‚é
-		void ReadMasterClock();
+		GGSERROR ReadMasterClock();
 		
 		// ”ò‚Î‚µˆ—‚ğ‚·‚é‚Ítrue
 		void SetSkipping(bool s){ skipping = s; }

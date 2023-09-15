@@ -189,6 +189,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\PowerControlWindow.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Smf.cpp"
 				>
 			</File>
@@ -280,6 +284,10 @@
 			</File>
 			<File
 				RelativePath=".\Player.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PowerControlWindow.h"
 				>
 			</File>
 			<File

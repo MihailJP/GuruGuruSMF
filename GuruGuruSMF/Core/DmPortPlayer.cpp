@@ -11,7 +11,10 @@ namespace GuruGuruSmf { namespace Core { namespace DirectMusicPort {
 	// スレッド呼び出し用
 	static DWORD WINAPI PlayerWorker(LPVOID object)
 	{
+		CoInitializeEx(NULL, COINIT_MULTITHREADED);
+		//CoInitialize(NULL);
 		((Player*)object)->OnWorker();
+		CoUninitialize();
 		return 0;
 	}
 
@@ -66,7 +69,7 @@ namespace GuruGuruSmf { namespace Core { namespace DirectMusicPort {
 		TRACE(L"DmPort.Player: CloseDevice : Stop\n");
 		Stop(0);
 		TRACE(L"DmPort.Player: CloseDevice : Sleep\n");
-		Sleep(150);
+		Sleep(150);	// FinalizeMusicでリセットを送信しているため
 		TRACE(L"DmPort.Player: CloseDevice : device->Close()\n");
 		device->Close();
 	}
@@ -93,14 +96,15 @@ namespace GuruGuruSmf { namespace Core { namespace DirectMusicPort {
 		ParsePlayOption(option);
 		SetKeyShift(newKeyShift);
 		
-		
 		// 直前に何か送信していたら1ミリ秒のウェイトをかける
-		times->ReadMasterClock();
+		err = times->ReadMasterClock();
+		if(err != GgsError::NoError) return err;
 		times->SetMarkerDmTimeByQueueDmTime(10000);
 	
 		// Stopなどでリセットを送ってなかった場合、GSリセットを送っておく
 		if (!sentReset){
-			device->SendLongMessage(Exclusive::GSReset, Exclusive::GSResetLength);
+			err = device->SendLongMessage(Exclusive::GSReset, Exclusive::GSResetLength);
+			if(err != GgsError::NoError) return err;
 			times->Wait(10000);		// 不要なようですが一応1ミリ秒ウェイト
 		}
 		sentReset = false;

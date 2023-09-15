@@ -1,5 +1,5 @@
-#define	TEST_VERSION_Z	"4.0.6\0"
-#define	TEST_VERSION	4,0,6,0
+#define	TEST_VERSION_Z	"4.0.7\0"
+#define	TEST_VERSION	4,0,7,0
 
 #define	VS_VERSION_INFO	1
 
@@ -20,7 +20,7 @@ BEGIN
             VALUE "FileDescription", "SMFÉãÅ[Évçƒê∂(HSP3óp)\0"
             VALUE "FileVersion", TEST_VERSION_Z
             VALUE "InternalName", "GuruGuruSMF4.hpi\0"
-            VALUE "LegalCopyright", "Copyright (C) 2010-2011 âKî@\0"
+            VALUE "LegalCopyright", "Copyright (C) 2010-2021 âKî@\0"
             VALUE "OriginalFilename", "GuruGuruSMF4.hpi\0"
             VALUE "ProductName", "GuruGuruSMF\0"
             VALUE "ProductVersion", TEST_VERSION_Z
