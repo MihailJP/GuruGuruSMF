@@ -152,6 +152,7 @@
     <ClCompile Include="DmPortPlayer.cpp" />
     <ClCompile Include="Ggs4Controller.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="PowerControlWindow.cpp" />
     <ClCompile Include="Smf.cpp" />
     <ClCompile Include="SmfController.cpp" />
     <ClCompile Include="SmfInterpreter.cpp" />
@@ -177,6 +178,7 @@
     <ClInclude Include="Ggs4Controller.h" />
     <ClInclude Include="Interface.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="PowerControlWindow.h" />
     <ClInclude Include="Smf.h" />
     <ClInclude Include="SmfController.h" />
     <ClInclude Include="SmfInterpreter.h" />
