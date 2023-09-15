@@ -1,0 +1,3 @@
+[submodule "dxsdk"]
+	path = dxsdk
+	url = https://github.com/NovaRain/DXSDK_Collection.git
