@@ -64,6 +64,7 @@ namespace GuruGuruSmf{ namespace Dxmus
 		{
 			port->Close();
 		}
+
 		GGSERROR PortGetReferenceTime(long long* time)
 		{
 			return port->GetReferenceTime(time);

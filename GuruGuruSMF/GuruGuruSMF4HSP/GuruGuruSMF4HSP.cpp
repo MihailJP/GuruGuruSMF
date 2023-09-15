@@ -255,6 +255,7 @@ void WINAPI GuruGuruSMF4(HSP3TYPEINFO *info)
 //	info->reffunc = reffunc;		// QÆŠÖ”(reffunc)‚Ì“o˜^
 	info->termfunc = termfunc;		// I—¹ŠÖ”(termfunc)‚Ì“o˜^
 
+	Ggs4Controller::Initialize();
 	ggs = Ggs4Controller::GetInstance();
 }
 

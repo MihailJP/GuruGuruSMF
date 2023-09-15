@@ -157,12 +157,7 @@ extern "C" {
 		return ggs->GetSmfInformation(info, size, musicId);
 	}
 
-
 }
-
-
-
-
 
 
 
@@ -174,6 +169,8 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 	switch (ul_reason_for_call)
 	{
 	case DLL_PROCESS_ATTACH:
+		Ggs4Controller::Initialize();
+		break;
 	case DLL_THREAD_ATTACH:
 	case DLL_THREAD_DETACH:
 		break;

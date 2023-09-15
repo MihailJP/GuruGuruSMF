@@ -61,7 +61,8 @@ namespace GuruGuruSmf {
 		enum Code {
 			Stop,		// 停止中
 			Play,		// 演奏中
-			Pause		// 一時停止中
+			Pause,		// 一時停止中
+			Suspended	// サスペンドによりデバイスが閉じられてます
 		};
 	}
 	typedef PlayerState::Code PLAYERSTATE;

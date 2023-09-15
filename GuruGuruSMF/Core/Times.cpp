@@ -168,9 +168,9 @@ namespace DirectMusicPort {
 	}
 	
 	// DirectMusicから基準時間を読んでくる
-	void PlayerTimes::ReadMasterClock()
+	GGSERROR PlayerTimes::ReadMasterClock()
 	{
-		GuruGuruSmf::Dxmus::Controller::GetInstance()->PortGetReferenceTime(&nowDmTime);
+		return GuruGuruSmf::Dxmus::Controller::GetInstance()->PortGetReferenceTime(&nowDmTime);
 	}
 	
 	// 直前に何か送信していたらウェイトをつけて、してなければ今の時間をセット

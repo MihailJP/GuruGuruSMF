@@ -12,6 +12,7 @@
 #include "WinmmPlayer.h"
 #include "DmPortPlayer.h"
 #include "DmPerformancePlayer.h"
+#include "PowerControlWindow.h"
 
 namespace GuruGuruSmf { namespace Core {
 
@@ -50,6 +51,8 @@ namespace GuruGuruSmf { namespace Core {
 		int playingId;
 		int nextId;
 
+		PowerControlWindow* winHidden;
+
 	protected:
 		GgsController();		// コンストラクタ
 		virtual ~GgsController();		// デストラクタ
@@ -66,7 +69,7 @@ namespace GuruGuruSmf { namespace Core {
 		
 		// デバイスを閉じる
 		void CloseDevice();
-		
+
 		// DLSを追加
 		GGSERROR AddDlsA(LPCSTR fileName);
 		GGSERROR AddDlsW(LPCWSTR fileName);
@@ -148,6 +151,9 @@ namespace GuruGuruSmf { namespace Core {
 		IPlayer* MakePlayer(int deviceId);
 
 	public:
+		// 初期化
+		static void Initialize();
+
 		// インスタンスを取得(singleton)
 		static Ggs4Controller* GetInstance();
 
@@ -176,6 +182,9 @@ namespace GuruGuruSmf { namespace Core {
 		IPlayer* MakePlayer(int deviceId);
 
 	public:
+		// 初期化
+		static void Initialize();
+
 		// インスタンスを取得(singleton)
 		static Ggs3Controller* GetInstance();
 

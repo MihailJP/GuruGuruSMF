@@ -68,10 +68,10 @@ namespace GuruGuruSmf { namespace Core
 	struct IDevice
 	{
 		// 長いMIDIメッセージを送信
-		virtual void SendLongMessage(const byte* data, int length) = 0;
+		virtual GGSERROR SendLongMessage(const byte* data, int length) = 0;
 		
 		// 短いMIDIメッセージを送信
-		virtual void SendShortMessage(int status, int data1, int data2) = 0;
+		virtual GGSERROR SendShortMessage(int status, int data1, int data2) = 0;
 	};
 	
 	/// <summary>

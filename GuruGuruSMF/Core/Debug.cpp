@@ -60,6 +60,14 @@ void GgsLoggingPuts(const char* str)
 	LeaveCriticalSection(debug_cs);
 }
 
+void GgsLoggingMessage(__int64 time, const char* str)
+{
+	char buf[256];
+	sprintf(buf, "%I64lld: %s\n", time, str);
+
+	GgsLoggingPuts(buf);
+}
+
 void GgsLoggingShortMsg(__int64 time, int status, int data1, int data2)
 {
 	if((status &0xf0) != 0xb0) return;	// コントロールチェンジ以外はパス

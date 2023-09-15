@@ -9,6 +9,40 @@ namespace GuruGuruSmf { namespace Core {
 	// GgsController
 	//
 
+	// サスペンド関連置き場
+	int _deviceId = -1100;	// 最後に開いたデバイスID
+	HWND _handle = NULL;	// その時のハンドル
+	bool _isSuspended = false;	// サスペンドした後未処理
+	bool _isDeviceOpen = false;	// サスペンド時にデバイスが開いていたかどうか
+	DWORD _openedTime;		// 最後にデバイスを開いた時間(通常時も使用)
+	PlayerStatus _suspendedStatus;	// サスペンドした時の演奏情報
+
+	// サスペンド処理
+	void _Suspend(GgsController* ggs)
+	{
+		if (_isDeviceOpen){
+			ggs->GetPlayerStatus(&_suspendedStatus, sizeof(PlayerStatus));
+			if (_suspendedStatus.State == PlayerState::Play || _suspendedStatus.State == PlayerState::Pause){
+				_suspendedStatus.State = PlayerState::Suspended;
+			}
+			_isSuspended = true;
+			ggs->CloseDevice();
+		}
+	}
+
+	// サスペンド処理(GGS4)
+	void Ggs4Suspend()
+	{
+		Ggs4Controller* ggs = Ggs4Controller::GetInstance();
+		_Suspend(ggs);
+	}
+	// サスペンド処理(GGS3)
+	void Ggs3Suspend()
+	{
+		Ggs3Controller* ggs = Ggs3Controller::GetInstance();
+		_Suspend(ggs);
+	}
+
 	// コンストラクタ
 	GgsController::GgsController()
 	{
@@ -19,12 +53,15 @@ namespace GuruGuruSmf { namespace Core {
 		smfPlayer = 0;
 		analyzer = new Analyzer::Analyzer();
 		compiler = new Compiler::Compiler();
+
+		winHidden = new PowerControlWindow();
 	}
 
 	// デストラクタ
 	GgsController::~GgsController()
 	{
 		CloseDevice();
+		delete winHidden;
 
 		ClearList();
 		delete[] listKeys;
@@ -34,13 +71,16 @@ namespace GuruGuruSmf { namespace Core {
 		delete analyzer;
 		delete compiler;
 		GuruGuruSmf::Dxmus::Controller::FreeInstance();
+
 	}
 
 	// デバイスを開く
 	GGSERROR GgsController::OpenDevice(int deviceId, HWND handle)
 	{
+		_isSuspended = false;
 		CloseDevice();
 
+		_openedTime = GetTickCount();
 		smfPlayer = MakePlayer(deviceId);
 		
 		GGSERROR err = smfPlayer->OpenDevice(deviceId, handle);
@@ -50,12 +90,16 @@ namespace GuruGuruSmf { namespace Core {
 			return err;
 		}
 
+		_deviceId = deviceId;
+		_handle = handle;
+		_isDeviceOpen = true;
 		return GgsError::NoError;
 	}
 		
 	// デバイスを閉じる
 	void GgsController::CloseDevice()
 	{
+		_isDeviceOpen = false;
 		TRACE(L"●Ggs4Controller::CloseDevice\n");
 		Stop(0);
 		if(smfPlayer){
@@ -64,9 +108,7 @@ namespace GuruGuruSmf { namespace Core {
 
 			delete smfPlayer;
 			smfPlayer = 0;
-
 			TRACE(L": CloseDevice: done\n");
-			smfPlayer = 0;
 		}
 	}
 
@@ -224,6 +266,13 @@ namespace GuruGuruSmf { namespace Core {
 	// 演奏！
 	GGSERROR GgsController::Play(int option, int musicId, int seek, int fadeInTime, int keyShift)
 	{
+		GGSERROR err;
+		if(_isSuspended){
+			_isSuspended = false;
+			err = OpenDevice(_deviceId, _handle);
+			if (err != GgsError::NoError) return err;
+		}
+
 		if(smfPlayer == 0) return GgsError::NotReady;
 		
 		Stop(0);
@@ -231,11 +280,19 @@ namespace GuruGuruSmf { namespace Core {
 			return GgsError::UndefinedId;
 		}
 		
-		GGSERROR err;
 		SmfController* smfController = smfList[musicId];
 		
 		if(fadeInTime < 100){
 			fadeInTime = 0;
+		}
+
+		// 最後にデバイスを開いた時間から1秒後以降になるようにする
+		DWORD now = GetTickCount();
+		if (now < _openedTime + 1000)
+		{
+			DWORD wait = 1000 + _openedTime - now;
+			if (wait > 1000) wait = 1000;	// おかしな数値になっていたら1000にする
+			Sleep(wait);
 		}
 		
 		err = smfPlayer->Play(smfController, option, seek, fadeInTime, keyShift);
@@ -360,13 +417,17 @@ namespace GuruGuruSmf { namespace Core {
 	{
 		PlayerStatus innerStatus;
 		ZeroMemory(&innerStatus, sizeof(PlayerStatus));
-		if(smfPlayer){
-			smfPlayer->GetStatus(&innerStatus);
+		if (size < 4) return;
+		if(_isSuspended){
+			innerStatus = _suspendedStatus;
 		}else{
-			innerStatus.State = PlayerState::Stop;
+			if(smfPlayer){
+				smfPlayer->GetStatus(&innerStatus);
+			}else{
+				innerStatus.State = PlayerState::Stop;
+			}
 		}
 
-		if(size < 4) return;
 		status->State = innerStatus.State;
 		if(size < 8) return;
 		status->Tempo = innerStatus.Tempo;
@@ -444,6 +505,11 @@ namespace GuruGuruSmf { namespace Core {
 
 	Ggs4Controller* Ggs4Controller::instance = 0;	// インスタンス置き場
 
+	// 初期化
+	void Ggs4Controller::Initialize()
+	{
+		PowerControlWindow::SetCallBackSuspend(Ggs4Suspend);
+	}
 
 	// インスタンスを取得
 	Ggs4Controller* Ggs4Controller::GetInstance()
@@ -505,6 +571,12 @@ namespace GuruGuruSmf { namespace Core {
 
 	Ggs3Controller* Ggs3Controller::instance = 0;	// インスタンス置き場
 
+
+	// 初期化
+	void Ggs3Controller::Initialize()
+	{
+		PowerControlWindow::SetCallBackSuspend(Ggs3Suspend);
+	}
 
 	// インスタンスを取得
 	Ggs3Controller* Ggs3Controller::GetInstance()

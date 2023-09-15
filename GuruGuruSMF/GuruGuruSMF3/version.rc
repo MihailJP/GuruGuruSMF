@@ -1,5 +1,5 @@
-#define	TEST_VERSION_Z	"3.4.6\0"
-#define	TEST_VERSION	3,4,6,0
+#define	TEST_VERSION_Z	"3.4.7\0"
+#define	TEST_VERSION	3,4,7,0
 
 #define	VS_VERSION_INFO	1
 
@@ -20,7 +20,7 @@ BEGIN
             VALUE "FileDescription", "SMFÉãÅ[Évçƒê∂\0"
             VALUE "FileVersion", TEST_VERSION_Z
             VALUE "InternalName", "GuruGuruSMF3.dll\0"
-            VALUE "LegalCopyright", "Copyright (C) 2010-2011 âKî@\0"
+            VALUE "LegalCopyright", "Copyright (C) 2010-2021 âKî@\0"
             VALUE "OriginalFilename", "GuruGuruSMF3.dll\0"
             VALUE "ProductName", "GuruGuruSMF\0"
             VALUE "ProductVersion", TEST_VERSION_Z

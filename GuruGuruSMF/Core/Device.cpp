@@ -41,9 +41,9 @@ namespace WindowsMultimedia {
 	}
 
 	// 長いMIDIメッセージを送信
-	void Device::SendLongMessage(const byte* data, int length)
+	GGSERROR Device::SendLongMessage(const byte* data, int length)
 	{
-		if (!isOpen) return;
+		if (!isOpen) return GgsError::NotReady;
 		
 		MIDIHDR midiHeader;
 		int headerSize = sizeof(MIDIHDR);
@@ -73,11 +73,12 @@ namespace WindowsMultimedia {
 		
 		midiOutUnprepareHeader(midiOutHandle, &midiHeader, headerSize);
 		GGS_LOGGING_LONGMSG(GGS_LOGGING_GETTIME(), length);
+		return GgsError::NoError;
 	}
 		
 		
 	// 短いMIDIメッセージを送信
-	void Device::SendShortMessage(int status, int data1, int data2)
+	GGSERROR Device::SendShortMessage(int status, int data1, int data2)
 	{
 		ShortMessage msg;
 		msg.Status = (byte)status;
@@ -86,13 +87,13 @@ namespace WindowsMultimedia {
 		msg.Reserve = 0;
 		midiOutShortMsg(midiOutHandle, msg.Value);
 		GGS_LOGGING_SHORTMSG(GGS_LOGGING_GETTIME(), status, data1, data2);
+		return GgsError::NoError;
 	}
 
 }
 
 
 namespace DirectMusicPort {
-
 
 	// コンストラクタ
 	Device::Device(IDirectMusicTimer* timer)
@@ -129,20 +130,22 @@ namespace DirectMusicPort {
 	
 
 	// 長いMIDIメッセージを送信
-	void Device::SendLongMessage(const byte* data, int length)
+	GGSERROR Device::SendLongMessage(const byte* data, int length)
 	{
 		TRACE4(L"/SendLongMessage(%d): %x %x %x ", length, data[0], data[1], data[2]);
 		TRACE3(L"%x %x %x\n", data[3], data[4], data[5]);
 
 		__int64 t = times->GetMarkerDmTime();
 		GGS_LOGGING_LONGMSG(t, length);
-		GuruGuruSmf::Dxmus::Controller::GetInstance()->PortSendLongMessage(t, (LPBYTE)data, length);
+		GGSERROR err = GuruGuruSmf::Dxmus::Controller::GetInstance()->PortSendLongMessage(t, (LPBYTE)data, length);
+		if(err != GgsError::NoError) return err;
 		times->IncrementMarkerDmTime();
+		return GgsError::NoError;
 	}
 	
 	
 	// 短いMIDIメッセージを送信
-	void Device::SendShortMessage(int status, int data1, int data2)
+	GGSERROR Device::SendShortMessage(int status, int data1, int data2)
 	{
 		ShortMessage msg;
 		msg.Status = (byte)status;
@@ -152,8 +155,10 @@ namespace DirectMusicPort {
 
 		__int64 t = times->GetMarkerDmTime();
 		GGS_LOGGING_SHORTMSG(t, status, data1, data2);
-		GuruGuruSmf::Dxmus::Controller::GetInstance()->PortSendShortMessage(t, msg.Value);
+		GGSERROR err = GuruGuruSmf::Dxmus::Controller::GetInstance()->PortSendShortMessage(t, msg.Value);
+		if(err != GgsError::NoError) return err;
 		times->IncrementMarkerDmTime();
+		return GgsError::NoError;
 	}
 	
 
